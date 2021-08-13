@@ -1,5 +1,6 @@
 import './ERC721Enumerable.sol';
 import './Ownable.sol';
+import './interfaces/IERC20.sol';
 // File: contracts/KEDU.sol
 
 pragma solidity ^0.8.6;
@@ -9,10 +10,12 @@ contract KEDU is ERC721Enumerable, Ownable {
     Counters.Counter private _tokenIds; //Counters used to track # of elements in a mapping
     
     bool public isActive = false;
+    bool public isEarlyAccess = false;
     uint256 public itemPrice;
     
     uint256 public _reserved = 127; // for giveAway
     string private baseURI;
+    address public pass;
 
     // withdraw addresses
     address giveaway = 0xC553E853cA924A42d5322D8Da79BA84798fA2830;
@@ -20,11 +23,12 @@ contract KEDU is ERC721Enumerable, Ownable {
     address withdraw = 0xC553E853cA924A42d5322D8Da79BA84798fA2830;
     
     //vegiemon dont need a lots of complicated code ╮ (. ❛ ᴗ ❛.) ╭
-    constructor () ERC721("Kepler's Civil Society", "KEDU"){
+    constructor (address _pass) ERC721("Kepler's Civil Society", "KEDU"){
         baseURI = "";   // URL to web server hosting image files
         itemPrice = 40000000000000000; // 0.05 ETH
         giveAway( giveaway, 127 ); // Giveaway wallet
         giveAway( earlyAdopter, 150 ); // Early Adopter wallet
+        pass = _pass;
     }
 
 	function getItemPrice() public view returns (uint256){
@@ -40,18 +44,33 @@ contract KEDU is ERC721Enumerable, Ownable {
         }
         return tokensId;
     }
+
+    function mintPass(address player, uint numberOfMints) public payable{
+        require(isEarlyAccess,                                                   "Keplers Civil Society Sale Has Not Started");
+        require(_tokenIds.current() + numberOfMints <= 10000 - _reserved,   "Minting Maxed Out");
+        require(msg.value >= itemPrice * numberOfMints,                     "Insufficient ETH sent for Payment");
+        require(numberOfMints <= 20,                                        "Maximum 20 Mints Per Transaction");
+        require(numberOfMints > 0,                                          "Youre Welcome");
+        uint256 passBalance = IERC20(pass).balanceOf(msg.sender);
+        require(passBalance > 0,                                            "Mint Pass Required");
+        
+        for(uint i = 0; i < numberOfMints; i++) {
+            uint256 newItemId = _tokenIds.current();
+            _safeMint(player, newItemId);
+            _tokenIds.increment();
+        }
+    }
     
-    function mint(address player, uint numberOfMints) public payable {
+    function mint(uint numberOfMints) public payable {
         require(isActive,                                                   "Keplers Civil Society Sale Has Not Started");
         require(_tokenIds.current() + numberOfMints <= 10000 - _reserved,   "Minting Maxed Out");
         require(msg.value >= itemPrice * numberOfMints,                     "Insufficient ETH sent for Payment");
         require(numberOfMints <= 20,                                        "Maximum 20 Mints Per Transaction");
         require(numberOfMints > 0,                                          "Youre Welcome");
         
-        for(uint i = 0; i < numberOfMints; i++)
-        {
+        for(uint i = 0; i < numberOfMints; i++) {
             uint256 newItemId = _tokenIds.current();
-            _safeMint(player, newItemId);
+            _safeMint(msg.sender, newItemId);
             _tokenIds.increment();
         }
     }
@@ -68,6 +87,10 @@ contract KEDU is ERC721Enumerable, Ownable {
     
     function setActive(bool val) public onlyOwner {
         isActive = val;
+    }
+
+    function setEarlyAccess(bool val) public onlyOwner {
+        isEarlyAccess = val;
     }
     
     function giveAway(address _to, uint256 _amount) public onlyOwner {
