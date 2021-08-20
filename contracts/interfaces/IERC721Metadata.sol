@@ -1,9 +1,5 @@
-import './IERC721.sol';
-// File: @openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol
-
 pragma solidity ^0.8.0;
-
-
+import './IERC721.sol';
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
  * @dev See https://eips.ethereum.org/EIPS/eip-721

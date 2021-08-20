@@ -1,5 +1,3 @@
-// File: @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol
-
 pragma solidity ^0.8.0;
 
 /**
