@@ -29,9 +29,9 @@ contract KEDU is ERC721Enumerable, Ownable {
     address public pass;
 
     // Total of 100 so 10 = 10%
-    uint256 ownerShare = 36;
+    uint256 ownerShare = 54;
     uint share1 = 10;
-    uint share2 = 54;
+    uint share2 = 36;
     // withdraw addresses
     address share1Address = 0xb46476044e4Fe99c25c9D521F6bDc3bc98fE56C0;
     address share2Address = 0x021A440Eb6C24df41591D1C79875d8Cb66F18d57;
